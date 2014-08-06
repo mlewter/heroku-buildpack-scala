@@ -95,8 +95,13 @@ npm install -g grunt-cli
 echo -n "-----> Installing Bower"
 npm install -g bower
 
+# Move to the UI directory and install dependencies
+cd $BUILD_DIR/ui
 echo "-----> Running NPM INSTALL"
 npm install
+
+# Move BACK to the regular build directory to finish SBT installation & App Build
+cd $BUILD_DIR
 
 # INSTALL SBT
 
