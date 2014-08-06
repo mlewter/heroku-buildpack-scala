@@ -39,6 +39,65 @@ install_java ${BUILD_DIR} ${javaVersion}
 jdk_overlay ${BUILD_DIR}
 echo "done"
 
+
+
+# INSTALL NODEJS
+echo -n "-----> Installing NodeJS"
+# Look in package.json's engines.node field for a semver range
+semver_range=$(cat $BUILD_DIR/ui/package.json | $BP_DIR/vendor/jq -r .engines.node)
+
+# Resolve node version using semver.io
+node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
+echo -n "-----> Version: ${node_version}"
+
+# Recommend using semver ranges in a safe manner
+if [ "$semver_range" == "null" ]; then
+  echo -n "Specify a node version in package.json"
+  semver_range=""
+elif [ "$semver_range" == "*" ]; then
+  echo -n "Avoid using semver ranges like '*' in engines.node"
+elif [ ${semver_range:0:1} == ">" ]; then
+  echo -n "Avoid using semver ranges starting with '>' in engines.node"
+fi
+
+# Output info about requested range and resolved node version
+if [ "$semver_range" == "" ]; then
+  echo -n "Defaulting to latest stable node: $node_version"
+else
+  echo -n "Requested node range: $semver_range"
+  echo -n "Resolved node version: $node_version"
+fi
+
+echo -n "Downloading and installing node"
+node_url="http://s3pository.heroku.com/node/v$node_version/node-v$node_version-linux-x64.tar.gz"
+echo -n "-----> Node URL: ${node_url}"
+
+curl $node_url -s -o - | tar xzf - -C $BUILD_DIR
+
+# Move node (and npm) into ./vendor and make them executable
+mkdir -p $BUILD_DIR/vendor
+mv $BUILD_DIR/node-v$node_version-linux-x64 $BUILD_DIR/vendor/node
+chmod +x $BUILD_DIR/vendor/node/bin/*
+PATH=$BUILD_DIR/vendor/node/bin:$PATH
+
+# Run subsequent node/npm commands from the build path
+cd $BUILD_DIR
+
+echo -n "-----> Installing Yeoman"
+npm install -g yo
+
+echo -n "-----> Installing Grunt"
+npm install -g grunt
+
+echo -n "-----> Installing Grunt-cli"
+npm install -g grunt-cli
+
+echo -n "-----> Installing Bower"
+npm install -g bower
+
+
+# INSTALL SBT
+
 # home directory from perspective of SBT; we rename
 # it because otherwise the project root and $HOME
 # are the same, and by default .sbt has a (different)
