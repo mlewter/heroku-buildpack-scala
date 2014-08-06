@@ -95,6 +95,8 @@ npm install -g grunt-cli
 echo -n "-----> Installing Bower"
 npm install -g bower
 
+echo "-----> Running NPM INSTALL"
+npm install
 
 # INSTALL SBT
 
