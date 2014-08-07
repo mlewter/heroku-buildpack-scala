@@ -5,8 +5,8 @@ This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) fo
 
 It may come as no surprise that this is the child of two existing Heroku buildpacks:
 
-1.)  https://github.com/heroku/heroku-buildpack-scala.git
-2.)  https://github.com/heroku/heroku-buildpack-nodejs.git
+1. https://github.com/heroku/heroku-buildpack-scala.git
+2. https://github.com/heroku/heroku-buildpack-nodejs.git
 
 ...However, in order to support the customized build process of the play-yeoman plug-in, it also installs Yeoman, Grunt, and Bower.  It's not perfect, but it works.
 
