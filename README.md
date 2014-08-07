@@ -1,7 +1,18 @@
-Heroku buildpack: Scala
+Heroku buildpack: Scala, Node, Yeoman, Grunt, and Bower
 =========================
 
-This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for Scala apps.
+This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for Play applications that are leveraging the most excellent play-yeoman plug-in:  https://github.com/tuplejump/play-yeoman.
+
+It may come as no surprise that this is the child of two existing Heroku buildpacks:
+
+1.)  https://github.com/heroku/heroku-buildpack-scala.git
+2.)  https://github.com/heroku/heroku-buildpack-nodejs.git
+
+...However, in order to support the customized build process of the play-yeoman plug-in, it also installs Yeoman, Grunt, and Bower.  It's not perfect, but it works.
+
+* Please Note:  The v1 of this buildpack assumes that your UI files are contained in the '<play_application_root>/ui' directory.  This is the default structure if you've used the play-yeoman Typesafe activator:  https://typesafe.com/activator/template/play-yeoman
+* For the short-term, I recommend forking this if you're going to use it (I plan on moving it to an alternate GitHub account in the near future)
+
 It uses [sbt](https://github.com/harrah/xsbt/) 0.11.0+.
 
 Usage
@@ -12,7 +23,7 @@ Example usage:
     $ ls
     Procfile build.sbt project src
 
-    $ heroku create --buildpack https://github.com/heroku/heroku-buildpack-scala.git
+    $ heroku create --buildpack https://github.com/mlewter/heroku-buildpack-scala.git
 
     $ git push heroku master
     ...

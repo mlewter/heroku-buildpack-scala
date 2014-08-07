@@ -34,43 +34,41 @@ fi
 
 # install JDK 
 javaVersion=$(detect_java_version ${BUILD_DIR})
-echo -n "-----> Installing OpenJDK ${javaVersion}..."
+status "Installing OpenJDK ${javaVersion}..."
 install_java ${BUILD_DIR} ${javaVersion}
 jdk_overlay ${BUILD_DIR}
-echo "done"
+status "done"
 
-
-
-# INSTALL NODEJS
-echo -n "-----> Installing NodeJS"
+# install node
+status "Installing Node"
 # Look in package.json's engines.node field for a semver range
 semver_range=$(cat $BUILD_DIR/ui/package.json | $BP_DIR/vendor/jq -r .engines.node)
 
 # Resolve node version using semver.io
 node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
-echo -n "-----> Version: ${node_version}"
+status "Version: ${node_version}"
 
 # Recommend using semver ranges in a safe manner
 if [ "$semver_range" == "null" ]; then
-  echo -n "Specify a node version in package.json"
+  protip "Specify a node version in package.json"
   semver_range=""
 elif [ "$semver_range" == "*" ]; then
-  echo -n "Avoid using semver ranges like '*' in engines.node"
+  protip "Avoid using semver ranges like '*' in engines.node"
 elif [ ${semver_range:0:1} == ">" ]; then
-  echo -n "Avoid using semver ranges starting with '>' in engines.node"
+  protip "Avoid using semver ranges starting with '>' in engines.node"
 fi
 
 # Output info about requested range and resolved node version
 if [ "$semver_range" == "" ]; then
-  echo -n "Defaulting to latest stable node: $node_version"
+  status "Defaulting to latest stable node: $node_version"
 else
-  echo -n "Requested node range: $semver_range"
-  echo -n "Resolved node version: $node_version"
+  status "Requested node range: $semver_range"
+  status "Resolved node version: $node_version"
 fi
 
-echo -n "Downloading and installing node"
+status "Downloading and installing node"
 node_url="http://s3pository.heroku.com/node/v$node_version/node-v$node_version-linux-x64.tar.gz"
-echo -n "-----> Node URL: ${node_url}"
+status "Node URL: ${node_url}"
 
 curl $node_url -s -o - | tar xzf - -C $BUILD_DIR
 
@@ -83,24 +81,24 @@ PATH=$BUILD_DIR/vendor/node/bin:$PATH
 # Run subsequent node/npm commands from the build path
 cd $BUILD_DIR
 
-echo -n "-----> Installing Yeoman"
+status "Installing Yeoman"
 npm install -g yo
 
-echo -n "-----> Installing Grunt"
+status "Installing Grunt"
 npm install -g grunt
 
-echo -n "-----> Installing Grunt-cli"
+status "Installing Grunt-cli"
 npm install -g grunt-cli
 
-echo -n "-----> Installing Bower"
+status "Installing Bower"
 npm install -g bower
 
 # Move to the UI directory and install dependencies
 cd $BUILD_DIR/ui
-echo "-----> Running NPM INSTALL"
+status "Running NPM INSTALL"
 npm install
 
-echo "-----> Running BOWER UPDATE"
+status "Running BOWER UPDATE"
 bower update
 
 # Move BACK to the regular build directory to finish SBT installation & App Build
@@ -130,7 +128,7 @@ done
 if ! test -e project/build.properties; then
 	echo " !      Error, your scala project must include project/build.properties and define sbt.version"
 	echo " !      You must use a release verison of sbt, sbt.version=0.11.0 or greater"
-        exit 1
+    exit 1
 fi
 
 if ! has_supported_sbt_version ${BUILD_DIR}; then
